@@ -1,0 +1,367 @@
+#C. - Ovvero un amore
+#####################
+
+#Festa a palazzo - prima parte
+##############################
+
+#Variazioni sul tema del Concerto per viola d'amore in la minore RV 397 (Vivaldi)
+#################################################################################
+
+use_debug true
+set_volume! 3.5 #Può arrivare a 5
+base_vivaldi = "C:/Users/Valentino/Desktop/C. - Ovvero un amore/Colonna sonora/Campionamenti/A. VIVALDI Viola damore Concerto in A minor RV 397 Accademia Bizantina.wav"
+electronic_sounds = "C:/Users/Valentino/Desktop/C. - Ovvero un amore/Colonna sonora/Campionamenti/Futuristic HUD Sound Design  Blake Sanchez.wav"
+narratore = "C:/Users/Valentino/Desktop/C. - Ovvero un amore/Colonna sonora/Campionamenti/Registrazione capitolo 2 BIS - Festa-Sesso.wav"
+sleep_time_base = (sample_duration base_vivaldi, start: 0.0526, finish: 0.9955)
+
+#Controlli
+##########
+
+first_step = 1 #alternativa è 0
+second_step = 1 #alternativa è 0
+
+set :command_overture, first_step #alternativa è 0
+set :command_main_pizzicato, first_step #alternativa è 0
+set :command_eco_pizzicato, first_step #alternativa è 0
+
+set :command_pizzicato_back, second_step #alternativa è 0
+set :command_elec_sound, second_step #alternativa è 0
+set :command_overture_stop, second_step #alternativa è 0
+set :command_second_part_archi, second_step #alternativa è 0
+set :command_third_archi, second_step #alternativa è 0
+set :command_pizzicato_stop, second_step #alternativa è 0
+set :command_echo_stop, second_step #alternativa è 0
+set :command_narratore, second_step #alternativa è 0
+
+#Randomness
+###########
+#I multipli di 3 funzionano particolarmente bene (combinazioni favorite 30, 90, 120, 210
+#oppure 30, 150, 120, 210 oppure 30, 210, 120, 300)
+###################################################
+
+seed_one = 30
+seed_two = 90
+seed_three = 120
+seed_four = 210
+
+#Narratore
+##########
+
+with_fx :reverb, room: 0.6 do
+  live_loop :narratore do
+    if get(:command_narratore) > 0
+      sleep 1
+    else
+      sample narratore, rate: 0.98, amp: 5, cutoff: 115
+      stop
+    end
+  end
+end
+
+#Pizzicato - Background
+#######################
+
+duration_pizzicato = 28.824633
+live_loop :pizzicato_background, delay: sleep_time_base * 14 do
+  if get(:command_pizzicato_back) > 0
+    run_file "C:/Users/Valentino/Desktop/C. - Ovvero un amore/Colonna sonora/Codici Sonic Pi/Festa a Venezia - working version/Festa a Venezia - working version - seconda parte.rb"
+    sleep duration_pizzicato
+  else
+    stop
+  end
+end
+
+#Electronic sounds
+##################
+
+with_fx :level, amp: 0.075 do
+  use_random_seed 3
+  live_loop :elec_sounds do
+    if get(:command_elec_sound) > 0
+      sample electronic_sounds, start: 0.5, finish: 1, rate: rrand(-0.8, 0.6), cutoff: rrand(105, 110)
+      sleep (sample_duration electronic_sounds, start: 0.5, finish: 1, rate: rrand(-0.8, 0.6))/2
+else
+stop
+  end
+end
+end
+
+#Archi
+######
+
+with_fx :level, amp: 2.5 do
+live_loop :overture do
+
+  if get(:command_overture) > 0
+
+    with_fx :echo, mix: 0.1 do
+      with_fx :reverb, mix: 0.4 do
+        overture = sample base_vivaldi, start: 0.0526, finish: 0.9985, amp: 0.75, cutoff: 10,
+          cutoff_slide: (sample_duration base_vivaldi, start: 0.0526, finish: 0.9985)
+        control overture, cutoff: 100
+        sleep sleep_time_base
+
+      end
+    end
+
+  else
+
+    if get(:command_overture_stop) > 0
+
+      set :archi_one, (ring 3, 1, 1, 1).tick(:one)
+
+      if get(:archi_one) > 2
+
+        print ('first_part_archi')
+        with_fx :echo, mix: 0.1, mix_slide: sleep_time_base, mix_slide_shape: 1,
+          decay: sleep_time_base/24, decay_slide: sleep_time_base, decay_slide_shape: 13,
+      phase: sleep_time_base/48 do |eco|
+        with_fx :reverb, mix: 0.4, mix_slide: sleep_time_base, mix_slide_shape: 6 do |reverb|
+          control eco, mix: 0.6666, decay: sleep_time_base/12
+          control reverb, mix: 0.9
+          base_one = sample base_vivaldi, start: 0.0526, finish: 0.9985, amp: 0.6, cutoff: 100,
+            cutoff_slide: sleep_time_base/4
+          control base_one, cutoff: 82.5
+          sleep sleep_time_base
+          
+        end
+      end
+      
+    else
+      
+      set :archi_two, (ring 4, 2, 2).tick(:two)
+      
+      if get(:archi_two) > 3
+        
+        print('second_part_archi')
+        with_fx :reverb, mix: 0.9999, mix_slide: sleep_time_base/48, mix_slide_shape: 7 do |reverb_base|
+          with_fx :echo, mix: 0.6666, amp: 1, phase: sleep_time_base/48, decay: sleep_time_base/48,
+          mix_slide: sleep_time_base * 0.34 do |eco_base|
+            with_fx :echo, mix: 0.3333, amp: 1, amp_slide: 6, amp_slide_shape: 7, phase: sleep_time_base/24,
+            decay: sleep_time_base/24, mix_slide: 0.68 do |eco_base_due|
+              control reverb_base, mix: 0.65
+              control eco_base, mix: 0
+              control eco_base_due, mix: 0
+              base_two = sample base_vivaldi, start: 0.0526, finish: 0.9985, attack: 0.05, amp: 0.6, cutoff: 82.5,
+                cutoff_slide: sleep_time_base/4
+              control base_two, cutoff: 100
+              sleep sleep_time_base
+              
+            end
+          end
+        end
+        
+      else
+        
+        set :archi_three, (ring 3, 1).tick(:three)
+        
+        if get(:archi_three) > 2
+          
+          print('third_part_archi')
+          with_fx :reverb, mix: 0.65 do
+            base_three = sample base_vivaldi, start: 0.0526, finish: 0.9985, amp: 0.75, cutoff: 100,
+              cutoff_slide: sleep_time_base/4
+            control base_three, cutoff: 82.5
+            sleep sleep_time_base
+            
+          end
+          
+        else
+          
+          print('fourth_part_archi')
+          with_fx :reverb, mix: 0.65 do
+            base_four = sample base_vivaldi, start: 0.0526, finish: 0.9985, amp: 0.75, cutoff: 82.5,
+              cutoff_slide: sleep_time_base/4
+            control base_four, cutoff: 100
+            sleep sleep_time_base
+            
+          end
+          
+        end
+        
+      end
+    end
+    
+    else
+      
+      stop
+      
+    end
+  end
+end
+end
+#Pizzicato - Pluck effet - funzione (principale) x arpeggio random
+##################################################################
+
+define :random_scale_player do |seed_one, seed_two, sleep_one, sleep_two, speed_one, speed_two|
+  use_random_seed seed_one
+  sleep sleep_one
+  8.times do
+    note = (scale :Ab3, :harmonic_minor).choose
+    play note, release: sleep_time_base/100
+    
+    sleep (sleep_time_base * 0.23106)/speed_one
+end
+use_random_seed seed_two
+sleep sleep_two
+8.times do 
+note = (scale :Ab3, :harmonic_minor).choose
+    play note, release: sleep_time_base/100
+    
+    sleep (sleep_time_base * 0.23106)/speed_two
+end
+end
+
+define :random_scale_player_final do |seed_one|
+use_random_seed seed_one
+  sleep 0
+  7.times do
+    note = (scale :Ab3, :harmonic_minor).choose
+    play note, release: sleep_time_base/100    
+    sleep (sleep_time_base * 0.23106)/16.9
+  end
+1.times do
+    note = (scale :Ab3, :harmonic_minor).choose
+    play note, release: sleep_time_base/100   
+    sleep (((sleep_time_base * 0.23106)/33.24782)-0.02000547619)
+end
+end
+
+#Pizzicato - Pluck effet - funzione (finale) x arpeggio random
+##############################################################
+
+live_loop :main_pizzicato do
+if get(:command_main_pizzicato) > 0
+sleep sleep_time_base * 10
+  with_fx :echo, mix: 0.3, phase: 1, decay: 1 do
+              with_fx :reverb, mix: 0.8 do
+                with_fx :krush, gain: 0.001, mix: 0.025 do
+                 with_fx :lpf, cutoff: 60, cutoff_slide: sleep_time_base/4 do |lpf|
+              with_fx :level, amp: 0.065 do
+                use_synth :pluck
+                control lpf, cutoff: 100
+                random_scale_player seed_one, seed_two, 0.175, 0, 16.375, 16.34
+                random_scale_player seed_one, seed_two, 0, 0, 16.4, 16.4
+                random_scale_player seed_one, seed_two, 0.02, 0, 16.5, 16.9
+                control lpf, cutoff: 90
+                random_scale_player seed_one, seed_two, 0, 0, 16.9, 16.95
+                random_scale_player_final seed_two
+              end
+            end
+            end
+            end
+            end
+            
+            else
+              if get(:command_pizzicato_stop) > 0
+                with_fx :echo, mix: 0.3, phase: 1, decay: 1 do
+                  with_fx :reverb, mix: 0.8 do
+                    with_fx :krush, gain: 0.001, mix: 0.025 do
+                      with_fx :lpf, cutoff: 100, cutoff_slide: sleep_time_base/4 do |lpf|
+                        with_fx :level, amp: 0.065 do
+                          use_synth :pluck
+                          random_scale_player seed_one, seed_two, 0.175, 0, 16.375, 16.34
+                          random_scale_player seed_one, seed_two, 0, 0, 16.4, 16.4
+                          random_scale_player seed_one, seed_two, 0.02, 0, 16.5, 16.9
+                          control lpf, cutoff: 90
+                          random_scale_player seed_one, seed_two, 0, 0, 16.9, 16.95
+                          random_scale_player_final seed_two
+                        end
+                      end
+                    end
+                  end
+                end
+              else
+                stop
+              end
+            end
+            end
+            
+            #ECHOE#
+            #######
+            #Pizzicato - Pluck effet - funzione (principale) x arpeggio random
+            ##################################################################
+            
+            define :random_scale_player_echoe do |seed_three, seed_four, sleep_one, sleep_two, speed_one, speed_two|
+              use_random_seed seed_three
+              sleep sleep_one
+              8.times do
+                note = (scale :Ab3, :harmonic_minor).choose
+                play note, release: sleep_time_base/100
+                sleep (sleep_time_base * 0.23106)/speed_one
+end
+use_random_seed seed_four
+sleep sleep_two
+8.times do 
+note = (scale :Ab3, :harmonic_minor).choose
+    play note, release: sleep_time_base/100
+                sleep (sleep_time_base * 0.23106)/speed_two
+end
+end
+
+define :random_scale_player_final_echoe do |seed_three|
+use_random_seed seed_three
+  sleep 0
+  7.times do
+    note = (scale :Ab3, :harmonic_minor).choose
+    play note, release: sleep_time_base/100      
+                sleep (sleep_time_base * 0.23106)/16.9
+  end
+1.times do
+    note = (scale :Ab3, :harmonic_minor).choose
+    play note, release: sleep_time_base/100
+                
+                sleep (((sleep_time_base * 0.23106)/33.24782)-0.02000547619)
+end
+end
+
+#Pizzicato - Pluck effet - funzione (finale) x arpeggio random
+##############################################################
+live_loop :eco_pizzicato do
+if get(:command_eco_pizzicato) > 0
+  with_fx :echo, mix: 0.3, phase: 1, decay: 1 do
+                      with_fx :reverb, mix: 0.8 do
+                        with_fx :krush, gain: 0.001, mix: 0.025 do
+sleep sleep_time_base * 10
+                          with_fx :level, amp: 0, amp_slide: sleep_time_base * 2 do |volume_second_pluck|
+                            with_fx :pan, pan: -0.8, pan_slide: sleep_time_base/4 do |pan_control|
+                          control volume_second_pluck, amp: 0.045
+                          use_synth :pluck
+                          random_scale_player_echoe seed_three, seed_four, 0.175, 0, 16.375, 16.34
+                          random_scale_player_echoe seed_three, seed_four, 0, 0, 16.4, 16.4
+                          control pan_control, pan: 0.65
+                          random_scale_player_echoe seed_three, seed_four, 0.02, 0, 16.5, 16.9
+                          random_scale_player_echoe seed_three, seed_four, 0, 0, 16.9, 16.95
+                          random_scale_player_final_echoe seed_three
+                          control pan_control, pan: -0.65
+                        end
+                        end
+                        end
+                        end
+                        end
+                        else
+                          if get(:command_echo_stop) > 0
+                            with_fx :echo, mix: 0.3, phase: 1, decay: 1 do
+                              with_fx :reverb, mix: 0.8 do
+                                with_fx :krush, gain: 0.001, mix: 0.025 do
+                                  with_fx :level, amp: 0.045 do
+                                    with_fx :pan, pan: -0.8, pan_slide: sleep_time_base/4 do |pan_control|
+                                      use_synth :pluck
+                                      random_scale_player_echoe seed_three, seed_four, 0.175, 0, 16.375, 16.34
+                                      random_scale_player_echoe seed_three, seed_four, 0, 0, 16.4, 16.4
+                                      control pan_control, pan: 0.65
+                                      random_scale_player_echoe seed_three, seed_four, 0.02, 0, 16.5, 16.9
+                                      random_scale_player_echoe seed_three, seed_four, 0, 0, 16.9, 16.95
+                                      random_scale_player_final_echoe seed_three
+                                      control pan_control, pan: -0.65
+                                    end
+                                  end
+                                end
+                              end
+                            end
+                          else
+                            stop
+                          end
+                        end
+                        end
+                        
