@@ -1,0 +1,163 @@
+#C. - Ovvero un amore
+#####################
+
+#Cum dederit - Nisi Dominus (Vivaldi)
+#####################################
+
+set_volume!3.5 #max is 5
+use_debug true
+
+load_samples "C:/Users/Valentino/Desktop/C. - Ovvero un amore/Colonna sonora/Campionamenti"
+
+Nisi_dominus_intro = "C:/Users/Valentino/Desktop/C. - Ovvero un amore/Colonna sonora/Campionamenti/Vivaldi Nisi Dominus (Cum dederit) - Jaroussky - Basso continuo - uno.wav"
+Nisi_dominus_intro_due = "C:/Users/Valentino/Desktop/C. - Ovvero un amore/Colonna sonora/Campionamenti/Vivaldi Nisi Dominus (Cum dederit) - Jaroussky - Basso continuo - due.wav"
+Nisi_dominus_voce = "C:/Users/Valentino/Desktop/C. - Ovvero un amore/Colonna sonora/Campionamenti/Vivaldi Nisi Dominus (Cum dederit) - Jaroussky - voce.wav"
+Nisi_dominus_my_guitar_uno = "C:/Users/Valentino/Desktop/C. - Ovvero un amore/Colonna sonora/Campionamenti/Guitar arpeggio - my recording - uno.wav"
+Nisi_dominus_my_guitar_due_arpa = "C:/Users/Valentino/Desktop/C. - Ovvero un amore/Colonna sonora/Campionamenti/Arpeggio guitar arpa.wav"
+
+
+#Commands for activating the second part of the loops
+
+set :command_basso_continuo_due, 0 #alternative is 0
+set :command_voce, 1 #alternative is 0
+set :command_voce_reverse, 1 #alternative is 0
+set :command_guitar, 0 #alternative is 0
+set :command_arpa, 0 #alternative is 0
+
+
+live_loop :arpa do
+  if get[:command_arpa] > 0
+    sleep 1
+  else
+    1.times
+    with_fx :echo, decay: 6, phase: 1.5, mix: 0.15 do
+      with_fx :reverb, mix: 0.9 do
+        
+        sleep 27
+        
+        sample Nisi_dominus_my_guitar_due_arpa, start: 0.38, finish: 0.85, amp: 2.5
+        
+      end
+    end
+  end
+end
+
+
+live_loop :guitar_one, delay: 0.21 do
+  
+  if get[:command_guitar] > 0
+    sleep 1
+  else
+    1.times do
+      with_fx :echo, mix: 0.15 do
+        with_fx :reverb, mix: 0.6 do
+          
+          sleep 39
+          
+          sample Nisi_dominus_my_guitar_uno, attack: 1, start: 0.23, finish: 0.6, amp: 2
+          
+        end
+      end
+    end
+    
+  end
+end
+
+
+with_fx :flanger, wave: 3, mix: 0, phase: 12, mix_slide: 3 do |flanger|
+  live_loop :bass do
+    
+    use_synth :tech_saws
+    bass = play :g3, sustain: 8.5, attack: 0.5, release: 1, cutoff: 60, cutoff_slide: 1.5,
+      amp_slide: 3, amp: 0.06
+    sleep 2
+    control flanger, mix: 0.8
+    control bass, cutoff: rrand_i(66, 75), amp: 0.05
+    sleep 1.5
+    control flanger, mix: 0
+    control bass, cutoff: 55, amp: 0.06
+    sleep 5.5
+    
+  end
+end
+
+
+live_loop :basso_continuo do
+  
+  if get[:command_basso_continuo_due] > 0
+    2.times do
+      sample Nisi_dominus_intro, amp: 4, finish: 0.875, cutoff: 105
+      sleep 3
+    end
+  else
+    40.times do
+      sample Nisi_dominus_intro, amp: 4, finish: 0.875, cutoff: 105
+      sleep 3
+    end
+    1.times do
+      sleep 0.38
+      sample Nisi_dominus_intro_due, amp: 4, start: 0.075, finish: 0.96, attack: 0.1, release: 0.15, cutoff: 110
+      sleep (sample_duration Nisi_dominus_intro_due, start: 0.084, finish: 0.96) - 0.38
+    end
+  end
+  
+end
+
+
+live_loop :voce_tempo, delay: 0.31 do
+  sleep 3
+end
+
+
+use_random_seed 2
+
+live_loop :voce do
+  
+  sync :voce_tempo
+  if get[:command_voce] > 0
+    sleep 3
+  else
+    1.times do
+      p = [-0.9, 0.9].choose
+      with_fx :pan, pan: p, pan_slide: 6 do |pan|
+        with_fx :echo, pre_mix: 0.7, mix: 0.4, phase: 0.35, decay: 4 do
+          sample Nisi_dominus_voce, amp: 3, start: 0.478, finish: 0.98, attack: 2
+          sample Nisi_dominus_voce, amp: 1, finish: 0.47, start: 0.8, attack: 2, release: 2 if one_in(2)
+          control pan, pan: -p
+          sleep 60
+        end
+      end
+    end
+  end
+  
+end
+
+
+live_loop :voce_reverse do
+  
+  sync :voce_tempo
+  if get[:command_voce_reverse] > 0
+    sleep 3
+  else
+    1.times do
+      sleep 15
+      with_fx :gverb, mix: 0.2 do
+        with_fx :echo, pre_mix: 0.7, mix: 0.05,  mix_slide: 7, mix_slide_shape: 5, mix_slide_curve: 10, phase: 0.35, decay: 4 do |echo|
+          sample Nisi_dominus_voce, amp: 0.6, start: 0.8, finish: 0.5, attack: 2, release: 3
+          control echo, mix: 0.9
+          sleep 25
+        end
+      end
+    end
+  end
+  
+end
+
+
+
+
+
+
+
+
+
