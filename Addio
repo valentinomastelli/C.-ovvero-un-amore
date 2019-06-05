@@ -1,0 +1,183 @@
+#C. - Ovvero
+############
+
+#Addio
+######
+
+#Avendo in mente il concetto di 'seconda pratica' di Claudio Monteverdi
+#######################################################################
+
+set_volume! 3.5 #max is 5
+use_bpm 60 #il sample è di 35 secondi --> attack, sustain, release sono in bpm; 60 bpm = 60 sec
+
+addio_arpeggio = "C:/Users/Valentino/Desktop/C. - Ovvero un amore/Colonna sonora/Campionamenti/Addio - arpeggio principale guitar.wav"
+addio_lettore = "C:/Users/Valentino/Desktop/C. - Ovvero un amore/Colonna sonora/Campionamenti/Addio - Registrazione finale.wav"
+Gabbiani = "C:/Users/Valentino/Desktop/C. - Ovvero un amore/Colonna sonora/Campionamenti/Seagull Sound Effect - [0, 35 sec].wav"
+
+#Commands for ocean and seagulls loops
+######################################
+
+set :command_gabbiani, 1 #alternative is 0
+set :command_oceano, 1 #alternative is 0
+
+#Arpeggio chitarra
+##################
+
+with_fx :reverb, mix: 0.6 do
+  with_fx :echo, mix: 0.05 do
+    in_thread(name: :arpeggio_principale) do
+      
+      11.times do
+        
+        sample addio_arpeggio
+        
+        sleep (sample_duration addio_arpeggio, finish: 0.99773845949)
+        
+      end
+      
+    end
+  end
+end
+
+#Voce narrante
+##############
+
+with_fx :reverb, room: 0.8 do
+  in_thread(name: :lettore) do
+    
+    sample addio_lettore, amp: 5, rate: 0.98
+    
+    sleep (sample_duration addio_lettore)
+    
+    set :command_gabbiani, 0
+    set :command_oceano, 0
+    
+  end
+end
+
+#Wind
+#####
+
+define :flute_uno do |time|
+  
+  use_synth :dark_ambience
+  flute_uno = play :E5, amp: 0.4,
+    attack: 0.5, sustain: 3, cutoff: rrand(70, 85), cutoff_slide: rrand(2, 4)
+  control flute_uno, cutoff: rrand(75, 90)
+  sleep time
+  
+end
+
+define :flute_due do |time|
+  
+  use_synth :dark_ambience
+  flute_due = play :Fs5, amp: 0.4,
+    attack: 0.5, sustain: 3, cutoff: rrand(70, 85), cutoff_slide: rrand(2, 4)
+  control flute_due, cutoff: rrand(75, 90)
+  sleep time
+  
+end
+
+with_fx :reverb, mix: 0.7, room: 0.9 do
+  with_fx :level, amp: 0.3 do
+    in_thread(name: :Wind) do
+      
+      11.times do
+        
+        flute_uno 4
+        flute_due 3.7
+        
+        flute_uno 3.8
+        flute_due 3.8
+        
+        flute_uno 3.7
+        flute_due 3.5
+        
+        flute_uno 3.5
+        flute_due 4
+        
+      end
+      
+    end
+  end
+end
+
+#Gabbiani
+#########
+
+live_loop :gabbiani do
+  
+  if get(:command_gabbiani) > 0
+    
+    with_fx :level, amp: 0.3 do
+      with_fx :reverb, mix: 0.1, mix_slide: 6, room: 0.1, room_slide: 6 do |s|
+        Gabbiani_uno = sample Gabbiani, attack: 1, sustain: 33, release: 1, amp: 0.7
+        Gabbiani_due = sample Gabbiani, attack: 1, sustain: 33, release: 1, amp: 0.3, rate: -0.9
+        control s, mix: 0.9, room: 0.75
+        sleep(sample_duration Gabbiani)
+        
+      end
+    end
+    
+  else
+    
+    with_fx :level, amp: 0.3 do
+      with_fx :reverb, mix: 0.1, mix_slide: 6, room: 0.1, room_slide: 6 do |s|
+        
+        Gabbiani_uno = sample Gabbiani, attack: 1, sustain: 33, release: 1, amp: 0.7
+        Gabbiani_due = sample Gabbiani, attack: 1, sustain: 33, release: 1, amp: 0.3, rate: -0.9
+        control s, mix: 0.9, room: 0.75
+        sleep(sample_duration Gabbiani)
+        
+        Gabbiani_uno = sample Gabbiani, attack: 1, sustain: 33, release: 1, amp: 0.7, finish: 0.10475233554
+        Gabbiani_due = sample Gabbiani, attack: 1, sustain: 33, release: 1, amp: 0.3, rate: -0.9, finish: 0.10475233554
+        control s, mix: 0.9, room: 0.75
+        sleep(sample_duration Gabbiani, finish: 0.10475233554)
+        
+      end
+    end
+    
+    stop
+    
+  end
+end
+
+#Oceano
+#######
+
+live_loop :ocean do
+  
+  if get(:command_oceano) > 0
+    
+    with_fx :level, amp: 0.3 do
+      with_fx :reverb, amp: 0.05, mix: 0.5 do
+        s = synth [:bnoise, :cnoise, :gnoise].choose, amp: rrand(0.5, 1.5),
+          attack: rrand(0, 4), sustain: rrand(0, 2), release: rrand(1, 5),
+          cutoff_slide: rrand(0, 5), cutoff: rrand(60, 100),
+          pan: rrand(-1, 1), pan_slide: rrand(1, 5), amp: rrand(0.5, 1)
+        control s, pan: rrand(-1, 1), cutoff: rrand(60, 110)
+        sleep rrand(2, 4)
+        
+      end
+    end
+    
+  else
+    
+    16.times do
+      with_fx :level, amp: 0.3 do
+        with_fx :reverb, amp: 0.05, mix: 0.5 do
+          s = synth [:bnoise, :cnoise, :gnoise].choose, amp: rrand(0.5, 1.5),
+            attack: rrand(0, 4), sustain: rrand(0, 2), release: rrand(1, 5),
+            cutoff_slide: rrand(0, 5), cutoff: rrand(60, 100),
+            pan: rrand(-1, 1), pan_slide: rrand(1, 5), amp: rrand(0.5, 1)
+          control s, pan: rrand(-1, 1), cutoff: rrand(60, 110)
+          sleep rrand(2, 4)
+        end
+      end
+    end
+    
+    stop
+    
+  end
+  
+end
