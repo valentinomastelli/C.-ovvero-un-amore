@@ -1,0 +1,49 @@
+#C. - Ovvero un amore
+#####################
+
+#Festa a palazzo
+################
+
+#Variazioni sul tema del Concerto per viola d'amore in la minore RV 397 (Vivaldi)
+#################################################################################
+
+#Seconda parte
+##############
+
+sleep_time_base = 28.823191523809527
+
+#Pizzicato - Pluck effect
+#########################
+with_fx :echo, mix: 0.2, decay: sleep_time_base/(sleep_time_base * 0.1) do
+  with_fx :reverb, mix: 0.9 do
+    with_fx :krush, gain: 0.001, mix: 0.025 do
+      with_fx :level, amp: 0.15 do
+        
+        use_synth :pluck
+        play :Ab3, sustain: sleep_time_base * 0.23106, attack: 0.1, release: 0.5, cutoff: 55
+        sleep sleep_time_base * 0.23106
+        play :G3, sustain: sleep_time_base * (0.345 - 0.23106), attack: 0.1, release: 0.5, cutoff: 55
+        sleep sleep_time_base * (0.345 - 0.23106)
+        play :Ab3, sustain: sleep_time_base * (0.40 - 0.345), attack: 0.1, release: 0.5, cutoff: 55
+        sleep sleep_time_base * (0.40 - 0.345)
+        play :Bb3, sustain: sleep_time_base * (0.43 - 0.40), attack: 0.1, release: 0.5, cutoff: 55
+        sleep sleep_time_base * (0.43- 0.40)
+        play :B3, sustain: sleep_time_base * (0.46 - 0.43), attack: 0.1, release: 0.5, cutoff: 55
+        sleep sleep_time_base * (0.46 - 0.43)
+        play :C4, sustain: sleep_time_base * (0.56985 - 0.46), attack: 0.1, release: 0.5, cutoff: 55
+        sleep sleep_time_base * (0.56985 - 0.46)
+        play :Cs4, sustain: sleep_time_base * (0.68122 - 0.5698), attack: 0.1, release: 0.5, cutoff: 55
+        sleep sleep_time_base * (0.68122 - 0.5698)
+        play :B3, sustain: sleep_time_base * (0.765 - 0.68122), attack: 0.1, release: 0.5, cutoff: 55
+        sleep sleep_time_base * (0.765 - 0.68122)
+        play :Bb3, sustain: sleep_time_base * (0.79 - 0.765), attack: 0.1, release: 0.5, cutoff: 55
+        sleep sleep_time_base * (0.79 - 0.765)
+        play :Ab3, sustain: sleep_time_base * (0.98 - 0.79), attack: 0.1, release: 0.5, cutoff: 55
+        sleep sleep_time_base * (0.98 - 0.79)
+        play :G3, sustain: sleep_time_base * (1 - 0.98), attack: 0.1, release: 0.5, cutoff: 55
+        sleep sleep_time_base * (1 - 0.98)
+        
+      end
+    end
+  end
+end
