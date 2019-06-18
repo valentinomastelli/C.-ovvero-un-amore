@@ -1,8 +1,8 @@
 #C. - Ovvero un amore
 #####################
 
-#Festa a palazzo - prima parte
-##############################
+#Perduto in un ballo veneziano - codici principali
+##################################################
 
 #Variazioni sul tema del Concerto per viola d'amore in la minore RV 397 (Vivaldi)
 #################################################################################
@@ -62,9 +62,9 @@ end
 #######################
 
 duration_pizzicato = 28.824633
-live_loop :pizzicato_background, delay: sleep_time_base * 14 do
+live_loop :pizzicato_background, delay: sleep_time_base * 22 do
   if get(:command_pizzicato_back) > 0
-    run_file "C:/Users/Valentino/Desktop/C. - Ovvero un amore/Colonna sonora/Codici Sonic Pi/Festa a Venezia - working version/Festa a Venezia - working version - seconda parte.rb"
+    run_file "C:/Users/Valentino/Desktop/C. - Ovvero un amore/Colonna sonora/Codici Sonic Pi/Perduto in un ballo veneziano - working version/Perduto in un ballo veneziano - working version - codici ausiliari.rb"
     sleep duration_pizzicato
   else
     stop
@@ -74,7 +74,7 @@ end
 #Electronic sounds
 ##################
 
-with_fx :level, amp: 0.075 do
+with_fx :level, amp: 0.065 do
   use_random_seed 3
   live_loop :elec_sounds do
     if get(:command_elec_sound) > 0
@@ -97,6 +97,14 @@ live_loop :overture do
     with_fx :echo, mix: 0.1 do
       with_fx :reverb, mix: 0.4 do
         overture = sample base_vivaldi, start: 0.0526, finish: 0.9985, amp: 0.75, cutoff: 10,
+          cutoff_slide: (sample_duration base_vivaldi, start: 0.0526, finish: 0.9985)
+        control overture, cutoff: 35
+        sleep sleep_time_base
+        overture = sample base_vivaldi, start: 0.0526, finish: 0.9985, amp: 0.75, cutoff: 35,
+          cutoff_slide: (sample_duration base_vivaldi, start: 0.0526, finish: 0.9985)
+        control overture, cutoff: 70
+        sleep sleep_time_base
+        overture = sample base_vivaldi, start: 0.0526, finish: 0.9985, amp: 0.75, cutoff: 70,
           cutoff_slide: (sample_duration base_vivaldi, start: 0.0526, finish: 0.9985)
         control overture, cutoff: 100
         sleep sleep_time_base
@@ -232,7 +240,10 @@ end
 
 live_loop :main_pizzicato do
 if get(:command_main_pizzicato) > 0
-sleep sleep_time_base * 10
+
+sleep sleep_time_base * 12
+set :command_overture, 1
+
   with_fx :echo, mix: 0.3, phase: 1, decay: 1 do
               with_fx :reverb, mix: 0.8 do
                 with_fx :krush, gain: 0.001, mix: 0.025 do
@@ -246,6 +257,8 @@ sleep sleep_time_base * 10
                 control lpf, cutoff: 90
                 random_scale_player seed_one, seed_two, 0, 0, 16.9, 16.95
                 random_scale_player_final seed_two
+                
+                
               end
             end
             end
@@ -254,6 +267,7 @@ sleep sleep_time_base * 10
             
             else
               if get(:command_pizzicato_stop) > 0
+                
                 with_fx :echo, mix: 0.3, phase: 1, decay: 1 do
                   with_fx :reverb, mix: 0.8 do
                     with_fx :krush, gain: 0.001, mix: 0.025 do
@@ -266,6 +280,9 @@ sleep sleep_time_base * 10
                           control lpf, cutoff: 90
                           random_scale_player seed_one, seed_two, 0, 0, 16.9, 16.95
                           random_scale_player_final seed_two
+                          
+                          set :command_overture, 0
+                          
                         end
                       end
                     end
@@ -319,10 +336,11 @@ end
 ##############################################################
 live_loop :eco_pizzicato do
 if get(:command_eco_pizzicato) > 0
+sleep sleep_time_base * 12
   with_fx :echo, mix: 0.3, phase: 1, decay: 1 do
                       with_fx :reverb, mix: 0.8 do
                         with_fx :krush, gain: 0.001, mix: 0.025 do
-sleep sleep_time_base * 10
+
                           with_fx :level, amp: 0, amp_slide: sleep_time_base * 2 do |volume_second_pluck|
                             with_fx :pan, pan: -0.8, pan_slide: sleep_time_base/4 do |pan_control|
                           control volume_second_pluck, amp: 0.045
