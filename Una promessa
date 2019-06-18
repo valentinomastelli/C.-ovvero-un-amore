@@ -1,8 +1,8 @@
 #C. - Ovvero un amore
 #####################
 
-#Descrizione iniziales di C.
-###########################
+#Una promessa
+#############
 
 set_volume! 3.5 #max is 5
 use_bpm 60 #il sample è di 35 secondi --> attack, sustain, release sono in bpm; 60 bpm = 60 sec
@@ -233,7 +233,7 @@ with_fx :level, amp: 0.08 do
         sleep 1
       else
         if get(:command_ship_not_delayed) > 0
-          sleep 64
+          sleep 94
         else
           if get(:command_ship_stop) > 0
             sample :perc_bell, rate: rrand(-1.5, 0.5), pan: rrand(-0.8, 0.8)
@@ -310,3 +310,8 @@ with_fx :reverb, room: 0.6 do
     end
   end
 end
+
+
+
+
+
